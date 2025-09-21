@@ -142,7 +142,25 @@ class Test
 		return currentQuestionIndex < questions.length;
 	}
 
-	public boolean incrementScoreAfterAnswerAndAdvanceToNextQuestion(byte answer)
+	public void reset()
+	{
+		if (currentInstance.isActive())
+		{
+			throw new IllegalStateException(TEST_INCOMPLETE_MESSAGE);
+		}
+
+		currentInstance = null;
+		currentQuestionIndex = 0;
+		score = 0;
+		TestQuestionBuilder.reset();
+	}
+
+	/**
+	 * Increments the test's score if the answer is correct. Also increments currentQuestionIndex.
+	 * @param answer The number associated with the TestQuestionOption displayed on the UI. Should start from 1.
+	 * @return Indicates whether the answer is correct.
+	 */
+	public boolean submitAnswer(byte answer)
 	{
 		boolean isCorrect;
 
@@ -161,10 +179,5 @@ class Test
 
 		currentQuestionIndex++;
 		return isCorrect;
-	}
-
-	public boolean isNewlyCreated()
-	{
-		return currentQuestionIndex == 0 && score == 0;
 	}
 }

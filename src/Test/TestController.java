@@ -19,50 +19,47 @@ public class TestController
         boolean answerIsCorrect;
 		String answerMessage;
 		String correctOptionString;
-		Test test = Test.createTest(promptForNumberOfQuestionsAndParse());
+		Test test = null;
 
-		if (!test.isNewlyCreated())
+		while (promptForNewGameInput().equals(YesNoInput.YES))
 		{
+			test = Test.createTest(promptForNumberOfQuestionsAndParse());
+
+			while (test.isActive())
+			{
+				correctOptionString = test.getCurrentQuestionCorrectOptionString();
+				answerIsCorrect = test.submitAnswer(displayCurrentQuestionAndParseAnswer(test));
+				answerMessage = test.getRandomAnswerMessage(answerIsCorrect);
+
+				if (answerIsCorrect)
+				{
+					JOptionPane.showMessageDialog(
+							null,
+							answerMessage,
+							"Correct answer!",
+							JOptionPane.INFORMATION_MESSAGE
+					);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(
+							null,
+							String.format("%s The correct answer was: \"%s.\"", answerMessage, correctOptionString),
+							"Incorrect answer!",
+							JOptionPane.INFORMATION_MESSAGE
+					);
+				}
+			}
+
 			JOptionPane.showMessageDialog(
-				null,
-				"An active instance of Test already exists and therefore a new instance was not instantiated.",
-				"No new test instantiated!",
-				JOptionPane.WARNING_MESSAGE
+					null,
+					test.getScoreString(),
+					"Test completed!",
+					JOptionPane.INFORMATION_MESSAGE
 			);
+
+			test.reset();
 		}
-
-		while (test.isActive())
-		{
-			correctOptionString = test.getCurrentQuestionCorrectOptionString();
-			answerIsCorrect = test.incrementScoreAfterAnswerAndAdvanceToNextQuestion(displayCurrentQuestionAndParseAnswer(test));
-			answerMessage = test.getRandomAnswerMessage(answerIsCorrect);
-
-			if (answerIsCorrect)
-			{
-				JOptionPane.showMessageDialog(
-					null,
-					answerMessage,
-					"Correct answer!",
-					JOptionPane.INFORMATION_MESSAGE
-				);
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(
-					null,
-					String.format("%s The correct answer was: \"%s.\"", answerMessage, correctOptionString),
-					"Incorrect answer!",
-					JOptionPane.INFORMATION_MESSAGE
-				);
-			}
-		}
-
-		JOptionPane.showMessageDialog(
-			null,
-			test.getScoreString(),
-			"Test completed!",
-			JOptionPane.INFORMATION_MESSAGE
-		);
     }
 
 	private static byte displayCurrentQuestionAndParseAnswer(Test test)
@@ -97,6 +94,46 @@ public class TestController
 				return userInputAsByte;
 			}
 			catch (NumberFormatException | InvalidStringInputException e)
+			{
+				showExceptionDialog(e.getMessage());
+			}
+		}
+	}
+
+	private static YesNoInput promptForNewGameInput()
+	{
+		String userInputString;
+
+		while (true)
+		{
+			userInputString = JOptionPane.showInputDialog(
+				null,
+				"Would you like to be tested?"
+			);
+
+			try
+			{
+				if (userInputString == null)
+				{
+					throw new InvalidStringInputException("Your answer cannot be null.");
+				}
+				else if (userInputString.length() != 1 || !userInputString.equalsIgnoreCase("Y") &&  !userInputString.equalsIgnoreCase("N"))
+				{
+					throw new InvalidStringInputException(
+							String.format("Input \"%s\" is invalid.",  userInputString)
+					);
+				}
+
+				if (userInputString.equalsIgnoreCase("Y"))
+				{
+					return YesNoInput.YES;
+				}
+				else
+				{
+					return YesNoInput.NO;
+				}
+			}
+			catch (InvalidStringInputException e)
 			{
 				showExceptionDialog(e.getMessage());
 			}

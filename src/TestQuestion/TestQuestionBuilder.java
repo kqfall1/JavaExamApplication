@@ -140,7 +140,6 @@ public class TestQuestionBuilder
 	/**
 	 * Builds a new TestQuestion with a unique prompt (relative to other questions
 	 * encapsulated by the current instance of Test) and options in a randomized order.
-	 *
 	 * @return a fully configured TestQuestion object that is ready to be encapsulated
 	 * by the current instance of Test.
 	 * @throws IllegalStateException if there are no more available questions left.
@@ -237,4 +236,9 @@ public class TestQuestionBuilder
 		question.shuffleOptions();
 		return question;
     }
+
+	public static void reset()
+	{
+		previouslyAddedPromptIndices.clear();
+	}
 }
